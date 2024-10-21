@@ -108,7 +108,7 @@
                 <ul>
                     {% for rec in recommendations %}
                         <li class="recommendation-item">
-                            <img src="{{ rec.thumbnail }}" alt="Thumbnail" class="thumbnail">
+                            <img src="{{ rec.thumbnail or '/static/default-thumbnail.jpg' }}" alt="Thumbnail" class="thumbnail">
                             <div>
                                 <strong><a href="{{ rec.spotify_url }}" target="_blank">{{ rec.title }}</a></strong> by {{ rec.artist }}<br>
                                 <small>Album: {{ rec.album }}</small>
