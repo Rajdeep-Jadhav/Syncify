@@ -134,8 +134,9 @@ def index():
 
     return render_template('index.html')
 
-@app.route('/callback')
+@app.route('/callback', methods=['GET', 'POST'])
 def callback():
+
     try:
         # Get the playlist link from the session
         playlist_link = session.get('playlist_link')
