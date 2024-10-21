@@ -49,34 +49,45 @@ def get_spotify_tracks(playlist_id, sp):
 
 # Function to get song recommendations from YouTube Music
 def get_youtube_music_recommendations(song_name, artist_name, track_id):
+    # Log search query for debugging
+    print(f"Searching YouTube Music for: {song_name} {artist_name}")
+
+    # Search YouTube Music for songs matching the query
     search_results = ytmusic.search(f'{song_name} {artist_name}', filter='songs')
+    print(f"Search results: {search_results}")  # Log the search results
+
     recommendations = []
 
     if search_results:
         for result in search_results[:10]:
-            if 'artists' in result and result['artists']:
-                artist = result['artists'][0]['name']
-            else:
-                artist = 'Unknown Artist'
+            # Handle missing artist information
+            artist = result.get('artists', [{'name': 'Unknown Artist'}])[0]['name']
 
+            # Skip exact matches using fuzzy matching
             if fuzz.ratio(result['title'].lower(), song_name.lower()) > 90 and fuzz.ratio(artist.lower(), artist_name.lower()) > 90:
                 continue  # Skip exact matches
 
-            thumbnail = result['thumbnails'][0]['url'] if 'thumbnails' in result else None
+            # Handle missing thumbnail information
+            thumbnail = result.get('thumbnails', [{'url': None}])[0]['url']
 
             # Construct Spotify URL using the provided track_id
             spotify_url = f"https://open.spotify.com/track/{track_id}"
+            print(f"Spotify URL: {spotify_url}")  # Log Spotify URL for debugging
 
+            # Add recommendation to the list
             recommendations.append({
                 'title': result['title'],
                 'artist': artist,
-                'album': result.get('album', {}).get('name', 'N/A'),
+                'album': result.get('album', {}).get('name', 'N/A'),  # Handle missing album info
                 'thumbnail': thumbnail,
-                'views': result.get('views', '0'),  # Use views as a proxy for popularity
-                'spotify_url': spotify_url  # Add Spotify URL here
+                'views': result.get('views', '0'),  # Default to 0 if views are not provided
+                'spotify_url': spotify_url  # Include Spotify URL in recommendations
             })
+    else:
+        print("No search results found.")
 
     return recommendations
+
 
 # Function to filter out duplicates and get top recommendations
 def filter_and_get_top_recommendations(spotify_tracks, all_recommendations):
