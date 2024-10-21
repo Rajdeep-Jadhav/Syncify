@@ -144,7 +144,8 @@ def callback():
             return render_template('index.html', error="Playlist link not found in session.")
 
         # Retrieve the authorization code and get the access token
-        session_token = sp_oauth.get_access_token(request.args['code'])
+        token_info = sp_oauth.get_access_token(request.args['code'])
+        access_token = token_info['access_token']
         sp = spotipy.Spotify(auth=session_token['access_token'])
 
         # Use the Spotify client to fetch tracks from the Spotify playlist
