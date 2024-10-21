@@ -133,10 +133,8 @@ def index():
                 return render_template('index.html', error=f"Error: {str(e)}")
 
     return render_template('index.html')
-
 @app.route('/callback', methods=['GET', 'POST'])
 def callback():
-
     try:
         # Get the playlist link from the session
         playlist_link = session.get('playlist_link')
@@ -144,9 +142,17 @@ def callback():
             return render_template('index.html', error="Playlist link not found in session.")
 
         # Retrieve the authorization code and get the access token
-        token_info = sp_oauth.get_access_token(request.args['code'])
+        code = request.args.get('code')
+        if not code:
+            return render_template('index.html', error="Authorization code not found.")
+
+        # Get the access token using the authorization code
+        token_info = sp_oauth.get_access_token(code)
+        if not token_info:
+            return render_template('index.html', error="Could not retrieve access token.")
+
         access_token = token_info['access_token']
-        sp = spotipy.Spotify(auth=session_token['access_token'])
+        sp = spotipy.Spotify(auth=access_token)  # Use the access token directly
 
         # Use the Spotify client to fetch tracks from the Spotify playlist
         SPOTIFY_PLAYLIST_ID = playlist_link.split("/")[-1].split("?")[0]
